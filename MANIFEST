@@ -1,9 +1,16 @@
+.gitignore
 Changes
-Makefile.PL
 LICENSE
 MANIFEST
+Makefile.PL
 README.md
 ppport.h
 stricter.pm
 stricter.xs
 t/stricter.t
+t/z_kwalitee.t
+t/z_manifest.t
+t/z_meta.t
+t/z_perl_minimum_version.t
+t/z_pod-coverage.t
+t/z_pod.t
