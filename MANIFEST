@@ -1,0 +1,9 @@
+Changes
+Makefile.PL
+LICENSE
+MANIFEST
+README.md
+ppport.h
+stricter.pm
+stricter.xs
+t/stricter.t

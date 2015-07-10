@@ -1,0 +1,6 @@
+Revision history for Perl extension stricter.
+
+0.01  Fri Jul 10 21:05:53 2015
+	- original version; created by h2xs 1.23 with options
+		-X -v 0.01 -f stricter
+
