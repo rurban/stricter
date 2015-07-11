@@ -1,6 +1,5 @@
-Revision history for Perl extension stricter.
+Revision history for the Perl pragma stricter.
 
-0.01  Fri Jul 10 21:05:53 2015
+0.01  Fri Jul ?? 2015 rurban (not yet released)
 	- original version; created by h2xs 1.23 with options
 		-X -v 0.01 -f stricter
-

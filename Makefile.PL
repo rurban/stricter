@@ -4,7 +4,9 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME              => 'stricter',
     VERSION_FROM      => 'stricter.pm',
-    PREREQ_PM         => {'strict' => 0 },
+    PREREQ_PM         => {
+        'multidimensional' => 0
+    },
     ($] >= 5.005 ?
       (ABSTRACT_FROM  => 'stricter.pm',
        AUTHOR         => 'Reini Urban <rurban@cpan.org>') : ()),

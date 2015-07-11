@@ -15,8 +15,9 @@ stricter - than strict. Fatalize stricter and misc warnings.
 # DESCRIPTION
 
 use stricter adds stricter compile-time checks than strict, enables
-the default warnings and fatalizes the compile-time warnings from this
-**stricter** and the **misc** category.
+the default warnings, enables no multidimensional and fatalizes the
+compile-time warnings from this **stricter** and the **misc** and **deprecated**
+category.
 
     use stricter;
 
@@ -25,10 +26,17 @@ might be a better replacement for the typical idiom:
     use strict;
     use warnings;
 
-or [common::sense](https://metacpan.org/pod/common::sense), which is similar but has a misleading name.
+    # plus
+    no multidimensional;
+    use warnings 'FATAL' => qw(misc deprecated);
+
+[common::sense](https://metacpan.org/pod/common::sense) or [strictures](https://metacpan.org/pod/strictures) are similar but have misleading or bad names, and
+do not catch wrong slurpy assignments.
 
 stricter adds a new warnings category **stricter**, and throws a warning
-on the "Possibly" cases. In the non "Possibly" cases the warnings are **FATAL**.
+on the _"Possibly"_ cases. In the non _"Possibly"_ cases the warnings are **FATAL**.
+
+## Wrong slurpy assignment
 
 When the left-hand side of an list assignment contains an ARRAY or HASH
 not as last element.
@@ -39,17 +47,31 @@ not as last element.
     my (%h, $x) = (1, 2);
     => (W stricter)(F) Wrong slurpy assignment with %h in LIST, leaving $x uninitialized
 
+## Possibly missing assignment
+
 When the left-hand side of an list assignment contains not enough elements,
 and the right-hand side is a not-empty list it displays a non fatal warning.
 
     my ($a, $b, $c) = (1, 2);
     => (W stricter) Possibly missing assignment to $c in LIST, leaving $c uninitialized
 
+## Odd number of elements in hash assignment
+
 When the right-hand side of an assignment to a HASH contains an uneven
 number of elements, it fatalizes the 'misc' warning.
 
     my (%h) = (0);
     => (W misc)(F) Odd number of elements in hash assignment
+
+## Use of multidimensional array emulation
+
+no [multidimensional](https://metacpan.org/pod/multidimensional) makes using multidimensional array emulation a
+fatal error at compile time. It is mostly confused with `@hash{}` vs `$hash{}`.
+
+    $hash{1, 2};                # (F) Use of multidimensional array emulation
+    $hash{join($;, 1, 2)};      # doesn't die
+
+## Relax errors to warnings
 
 The warnings can be **unfatalized** with
 
@@ -59,11 +81,12 @@ or **hidden** with:
 
     no warnings qw(stricter misc);
 
-Note:
+## Legacy note
 
-All those errors are perfectly legal perl syntax, and used quite often in
-legacy code. But errors from overseeing such missing initializations are hard
-to detect, and should not be allowed in this stricter mode.
+All those errors are perfectly legal perl syntax, and used quite often
+in legacy code. But errors from overseeing such missing
+initializations are hard to detect, and should not be allowed in this
+stricter mode.
 
 ## Better error diagnostics
 
