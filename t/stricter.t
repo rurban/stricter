@@ -8,7 +8,7 @@ local $SIG{__DIE__}  = sub { $d = $_[0] };
 
 {
     eval "my (\@a, \$x) = (0, 1);";
-    like($d, qr/^Wrong slurpy assignment with \@a in LIST, leaving \$x as undef/,
+    like($d, qr/^Wrong slurpy assignment with \@a in LIST, leaving \$x uninitialized/,
          "fatal");
     ok(!$w, 'no warning');
     ($w,$d) = (undef,undef);
@@ -17,7 +17,7 @@ local $SIG{__DIE__}  = sub { $d = $_[0] };
 {
     use warnings 'NONFATAL' => 'stricter';
     my (@a, $x) = (0, 1);
-    like($w, qr/^Wrong slurpy assignment with \@a in LIST, leaving \$x as undef/,
+    like($w, qr/^Wrong slurpy assignment with \@a in LIST, leaving \$x uninitialized/,
          "just warn");
     ok(!$d, 'no fatal');
     ($w,$d) = (undef,undef);
