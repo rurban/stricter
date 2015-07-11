@@ -93,7 +93,7 @@ variable name, not only the type.
 
 =head1 SEE ALSO
 
-L<strict>, L<warnings>, L<perldiag>
+L<strict>, L<warnings>, L<perldiag>, L<common::sense>, L<strictures>
 
 =head1 AUTHOR
 

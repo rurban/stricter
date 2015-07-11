@@ -72,7 +72,7 @@ variable name, not only the type.
 
 # SEE ALSO
 
-[strict](https://metacpan.org/pod/strict), [warnings](https://metacpan.org/pod/warnings), [perldiag](https://metacpan.org/pod/perldiag)
+[strict](https://metacpan.org/pod/strict), [warnings](https://metacpan.org/pod/warnings), [perldiag](https://metacpan.org/pod/perldiag), [common::sense](https://metacpan.org/pod/common::sense), [strictures](https://metacpan.org/pod/strictures)
 
 # AUTHOR
 
