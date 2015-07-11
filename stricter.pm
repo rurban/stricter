@@ -84,7 +84,7 @@ Note:
 
 All those errors are perfectly legal perl syntax, and used quite often in
 legacy code. But errors from overseeing such missing initializations are hard
-detect, and should not be allowed in this stricter mode.
+to detect, and should not be allowed in this stricter mode.
 
 =head2 Better error diagnostics
 
