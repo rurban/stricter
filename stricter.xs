@@ -58,34 +58,53 @@ my_ck_aassign(pTHX_ OP *o) {
     
     if (my_hint()) { /* check if we are lexically active */
         SV *msg = newSVpvs("");
-        
+
         /* TODO check for violations */
         if (o->op_flags & OPf_KIDS) {
-            OP *oright, *oleft_pushmark;
-            char *otype;
-            OP *oleft = cBINOPo->op_first;
-            OP* modop_pushmark = cUNOPx(oleft)->op_first;
-            OP *modop = OpSIBLING(modop_pushmark);
+            OP *or = NULL;
+            OP *ol_pushmark;
+            OP *ol = cBINOPo->op_first;
+            OP* or_pushmark = cUNOPx(ol)->op_first;
+            char *lname = NULL;
+            int nright;
 
-            if (modop->op_type == OP_SORT || modop->op_type == OP_REVERSE)
-                return o;
-            
-            oleft_pushmark = cUNOPx(OpSIBLING(oleft))->op_first;
-            for (oleft = OpSIBLING(oleft_pushmark); oleft; oleft = oleft->op_next) {
-                if (!oleft) continue;
-                if (oleft->op_type == OP_RV2AV && oleft->op_type == OP_PADAV)
-                    otype = "ARRAY";
-                if (oleft->op_type == OP_RV2HV && oleft->op_type == OP_PADHV)
-                    otype = "HASH";
+            if (OpHAS_SIBLING(or_pushmark)) {
+                or = OpSIBLING(or_pushmark);
+                if (or->op_type == OP_SORT || or->op_type == OP_REVERSE)
+                    return o;
+            }
+            if (!or) return o;
+#if 0
+            /* how many scalars on the right? */
+            for (nright = 0; OpHAS_SIBLING(or); or = OpSIBLING(or)) {
+                if (!or) break;
+                if (PL_opargs[or->op_type] & OA_RETSCALAR)
+                    nright++;
+            }
+#endif
+            /* if there is a @ or % on the left, not at the end */
+            ol_pushmark = cUNOPx(OpSIBLING(ol))->op_first;
+            for (ol = OpSIBLING(ol_pushmark); OpHAS_SIBLING(ol); ol = OpSIBLING(ol)) {
+                if (!ol) break;
+                if (ol->op_type == OP_PADAV || ol->op_type == OP_PADHV)
+                    lname = PadnamePV(PAD_COMPNAME(ol->op_targ));
+                else if (ol->op_type == OP_RV2AV)
+                    lname = "ARRAY";
+                else if (ol->op_type == OP_RV2HV)
+                    lname = "HASH";
+            }
+
+            if (lname && ol) {
+                char *rname = "SCALAR on the right";
+                if (ol->op_type == OP_PADSV)
+                    rname = PadnamePV(PAD_COMPNAME(ol->op_targ));
+                sv_catpvf(msg, "Possible wrong slurpy assignment with %s in LIST,"
+                          " leaving %s as undef", lname, rname);
             }
         }
         
         /* warn if stricter is enabled. no warnings 'stricter',
            apply the FATAL or NONFATAL bit */
-        sv_catpvf(msg, "Possible wrong slurpy assignment with %s in LIST,"
-                  " leaving %s as undef",
-                  "@a", "$x");
-
         if (SvCUR(msg)) {
             PUSHMARK(SP);
             XPUSHs(newSVpvs("stricter"));
