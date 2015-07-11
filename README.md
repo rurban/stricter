@@ -16,7 +16,7 @@ stricter - than strict. Fatalize stricter and misc warnings.
 
 use stricter adds stricter compile-time checks than strict, enables
 the default warnings, enables no multidimensional and fatalizes the
-compile-time warnings from this **stricter** and the **misc** and **deprecated**
+compile-time warnings from this **stricter** and the **misc**
 category.
 
     use stricter;

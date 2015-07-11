@@ -11,8 +11,8 @@ use multidimensional (); # load it
 
 sub import {
     $^H |= 0x7e2; # use strict
-    $^W = 1;      # use warnings
-    warnings->import('FATAL' => qw(stricter misc deprecated)); # enable it
+    $^W = 1;      # use warnings 'all', but in C not PP
+    warnings->import('FATAL' => qw(stricter misc)); # enable it
     multidimensional->unimport(); # enable it
 }
 
@@ -39,7 +39,7 @@ stricter - than strict. Fatalize stricter and misc warnings.
 
 use stricter adds stricter compile-time checks than strict, enables
 the default warnings, enables no multidimensional and fatalizes the
-compile-time warnings from this B<stricter> and the B<misc> and B<deprecated>
+compile-time warnings from this B<stricter> and the B<misc>
 category.
 
     use stricter;
