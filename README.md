@@ -28,7 +28,7 @@ might be a better replacement for the typical idiom:
 
     # plus
     no multidimensional;
-    use warnings 'FATAL' => qw(misc deprecated);
+    use warnings 'FATAL' => qw(stricter misc);
 
 [common::sense](https://metacpan.org/pod/common::sense) or [strictures](https://metacpan.org/pod/strictures) are similar but have misleading or bad names, and
 do not catch wrong slurpy assignments.
