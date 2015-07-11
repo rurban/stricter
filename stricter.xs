@@ -20,8 +20,8 @@
 # endif
 
 typedef struct {
- peep_t  old_peep; /* This is actually the rpeep past 5.13.5 */
- tTHX    owner;
+    peep_t  old_peep; /* This is actually the rpeep past 5.13.5 */
+    tTHX    owner;
 } my_cxt_t;
 
 START_MY_CXT
@@ -46,24 +46,56 @@ wrap_op_checker(pTHX_ OPCODE type, my_ck_t new_ck, my_ck_t *old_ck_p)
 
 STATIC int
 my_hint() {
-    return 1;
+    return 1; /* dummy for testing */
 }
 
 STATIC OP *(*old_ck_aassign)(pTHX_ OP *) = NULL;
 
 STATIC OP *
 my_ck_aassign(pTHX_ OP *o) {
-    o = CALL_FPTR(old_ck_aassign)(aTHX_ o);
-    if (my_hint()) {
-        OP *kid    = o;
-        OP *prev   = NULL;
-        OP *parent = NULL;
+    dSP;
+    o = CALL_FPTR(old_ck_aassign)(aTHX_ o); /* This is usually null */
+    
+    if (my_hint()) { /* check if we are lexically active */
+        SV *msg = newSVpvs("");
+        
+        /* TODO check for violations */
+        if (o->op_flags & OPf_KIDS) {
+            OP *oright, *oleft_pushmark;
+            char *otype;
+            OP *oleft = cBINOPo->op_first;
+            OP* modop_pushmark = cUNOPx(oleft)->op_first;
+            OP *modop = OpSIBLING(modop_pushmark);
 
-        while (kid->op_flags & OPf_KIDS) {
-            parent = kid;
-            kid    = cUNOPx(kid)->op_first;
+            if (modop->op_type == OP_SORT || modop->op_type == OP_REVERSE)
+                return o;
+            
+            oleft_pushmark = cUNOPx(OpSIBLING(oleft))->op_first;
+            for (oleft = OpSIBLING(oleft_pushmark); oleft; oleft = oleft->op_next) {
+                if (!oleft) continue;
+                if (oleft->op_type == OP_RV2AV && oleft->op_type == OP_PADAV)
+                    otype = "ARRAY";
+                if (oleft->op_type == OP_RV2HV && oleft->op_type == OP_PADHV)
+                    otype = "HASH";
+            }
+        }
+        
+        /* warn if stricter is enabled. no warnings 'stricter',
+           apply the FATAL or NONFATAL bit */
+        sv_catpvf(msg, "Possible wrong slurpy assignment with %s in LIST,"
+                  " leaving %s as undef",
+                  "@a", "$x");
+
+        if (SvCUR(msg)) {
+            PUSHMARK(SP);
+            XPUSHs(newSVpvs("stricter"));
+            XPUSHs(msg);
+            PUTBACK;
+            call_pv("warnings::warnif", G_DISCARD);
+            SPAGAIN;
         }
     }
+    return o;
 }
 
   
@@ -100,5 +132,5 @@ BOOT:
   MY_CXT.owner       = aTHX;
 #endif
 
-  my_ck_replace(OP_AASSIGN, my_ck_aassign, &old_ck_aassign);
+  wrap_op_checker(OP_AASSIGN, my_ck_aassign, &old_ck_aassign);
 }

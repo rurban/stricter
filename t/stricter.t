@@ -1,9 +1,29 @@
 # -*- mode:perl perl-indent-level:4 -*-
-use Test::More tests => 2;
+use Test::More tests => 5;
 BEGIN { use_ok('stricter') };
 
-my $w;
+my ($w, $d);
 local $SIG{__WARN__} = sub { $w = $_[0] };
+local $SIG{__DIE__}  = sub { $d = $_[0] };
 
-my (@a, $x) = (0, 1);
-like($w, qr/^Invalid/, "warning");
+{
+    eval "my (\@a, \$x) = (0, 1);";
+    like($d, qr/^Wrong slurpy assignment with @a in LIST,/, "fatal");
+    ok(!$w);
+    ($w,$d) = (undef,undef);
+}
+
+{
+    use warnings 'NONFATAL' => 'stricter';
+    my (@a, $x) = (0, 1);
+    like($w, qr/^Wrong slurpy assignment with @a in LIST,/, "warning");
+    ok(!$d);
+    ($w,$d) = (undef,undef);
+}
+
+{
+    eval "my (\%h) = 0;";
+    like($d, qr/^Odd number of elements in hash assignment/, "fatal");
+    ok(!$w);
+    ($w,$d) = (undef,undef);
+}
