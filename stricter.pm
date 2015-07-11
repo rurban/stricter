@@ -10,8 +10,8 @@ use warnings::register;
 
 sub import {
     $^H |= 0x7e2; # use strict
-    warnings->import('FATAL' => 'misc');
-    warnings->import('FATAL' => 'stricter');
+    $^W = 1;      # use warnings
+    warnings->import('FATAL' => qw(misc stricter));
 }
 
 XSLoader::load;
@@ -35,11 +35,21 @@ stricter - than strict. Fatalize stricter and misc warnings.
 
 =head1 DESCRIPTION
 
-stricter adds stricter compile-time checks than strict, and fatalizes
-some compile-time warnings from the B<misc> category.
+use stricter adds stricter compile-time checks than strict, enables
+the default warnings and fatalizes the compile-time warnings from this
+B<stricter> and the B<misc> category.
 
-It adds a new warnings category B<stricter>, and throws a warning
-on the "Possibly" cases, in the non "Possibly" cases the warnings are B<FATAL>.
+    use stricter;
+
+might be a better replacement for the typical idiom:
+
+    use strict;
+    use warnings;
+
+or L<common::sense>, which is similar but has a misleading name.
+
+stricter adds a new warnings category B<stricter>, and throws a warning
+on the "Possibly" cases. In the non "Possibly" cases the warnings are B<FATAL>.
 
 When the left-hand side of an list assignment contains an ARRAY or HASH
 not as last element.
@@ -51,13 +61,13 @@ not as last element.
   => (W stricter)(F) Wrong slurpy assignment with %h in LIST, leaving $x uninitialized
 
 When the left-hand side of an list assignment contains not enough elements,
-and the right-hand side is a not-empty list.
+and the right-hand side is a not-empty list it displays a non fatal warning.
 
   my ($a, $b, $c) = (1, 2);
   => (W stricter) Possibly missing assignment to $c in LIST, leaving $c uninitialized
 
 When the right-hand side of an assignment to a HASH contains an uneven
-number of elements, it fatalizes the 'misc' warnings.
+number of elements, it fatalizes the 'misc' warning.
 
   my (%h) = (0);
   => (W misc)(F) Odd number of elements in hash assignment
@@ -66,9 +76,11 @@ The warnings can be B<unfatalized> with
 
     use warnings 'NONFATAL' => 'stricter';
 
-and B<hidden> with:
+or B<hidden> with:
 
     no warnings qw(stricter misc);
+
+Note:
 
 All those errors are perfectly legal perl syntax, and used quite often in
 legacy code. But errors from overseeing such missing initializations are hard

@@ -98,7 +98,7 @@ my_ck_aassign(pTHX_ OP *o) {
                 char *rname = "the SCALAR on the right";
                 if (ol->op_type == OP_PADSV)
                     rname = PadnamePV(PAD_COMPNAME(ol->op_targ));
-                sv_catpvf(msg, "Possible wrong slurpy assignment with %s in LIST,"
+                sv_catpvf(msg, "Wrong slurpy assignment with %s in LIST,"
                           " leaving %s uninitialized", lname, rname);
             }
         }
