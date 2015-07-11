@@ -70,6 +70,11 @@ and B<hidden> with:
 
     no warnings qw(stricter misc);
 
+=head2 Better error diagnostics
+
+Unlike most perl 5 errors and warnings C<stricter> prints the wrong
+variable name, not only the type.
+
 =head1 SEE ALSO
 
 L<strict>, L<warnings>, L<perldiag>

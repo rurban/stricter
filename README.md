@@ -49,6 +49,11 @@ and **hidden** with:
 
     no warnings qw(stricter misc);
 
+## Better error diagnostics
+
+Unlike most perl 5 errors and warnings `stricter` prints the wrong
+variable name, not only the type.
+
 # SEE ALSO
 
 [strict](https://metacpan.org/pod/strict), [warnings](https://metacpan.org/pod/warnings), [perldiag](https://metacpan.org/pod/perldiag)
