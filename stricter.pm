@@ -11,9 +11,18 @@ use multidimensional (); # load it
 
 sub import {
     $^H |= 0x7e2; # use strict
-    $^W = 1;      # use warnings 'all', but in C not PP
+    $^W = 1;      # use warnings 'all', but in C not 100 lines of PP
     warnings->import('FATAL' => qw(stricter misc)); # enable it
     multidimensional->unimport(); # enable it
+    $^H{stricter} = 1;
+}
+
+sub unimport {
+    $^H &= ~(0x7e2); # use strict
+    $^W = 0;         # use warnings 'all', but in C not 100 lines of PP
+    warnings->import('NONFATAL' => qw(misc)); # disable it
+    multidimensional->import(); # disable it
+    $^H{stricter} = 0;
 }
 
 XSLoader::load;
@@ -93,6 +102,16 @@ fatal error at compile time. It is mostly confused with C<@hash{}> vs C<$hash{}>
 
   $hash{1, 2};                # (F) Use of multidimensional array emulation
   $hash{join($;, 1, 2)};      # doesn't die
+
+=head2  Two-argument open is an error
+
+  open *FH, "<$file";
+  => (W misc)(F) Two-argument open is an error
+
+  open my $fh, "|-$file";
+  => (W misc)(F) Two-argument open is an error
+
+See L<Perl::Critic::Policy::InputOutput::ProhibitTwoArgOpen>
 
 =head2 Relax errors to warnings
 

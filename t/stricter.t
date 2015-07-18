@@ -1,5 +1,5 @@
 # -*- mode:perl perl-indent-level:4 -*-
-use Test::More tests => 9;
+use Test::More tests => 7;
 BEGIN { use_ok('stricter') };
 
 my ($w, $d);
@@ -14,9 +14,9 @@ local $SIG{__DIE__}  = sub { $d = $_[0] };
     ($w,$d) = (undef,undef);
 }
 
-{
+if (0) {
     use warnings 'NONFATAL' => 'stricter';
-    my (@a, $x) = (0, 1);
+    eval "my (\@a, \$x) = (0, 1);";
     like($w, qr/^Wrong slurpy assignment with \@a in LIST, leaving \$x uninitialized/,
          "NONFATAL stricter");
     ok(!$d, 'no fatal stricter');

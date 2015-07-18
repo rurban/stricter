@@ -46,10 +46,13 @@ wrap_op_checker(pTHX_ OPCODE type, my_ck_t new_ck, my_ck_t *old_ck_p)
 
 STATIC int
 my_hint() {
-    return 1; /* dummy for testing */
+    SV *hint = cop_hints_fetch_pvs(PL_curcop, "stricter", 0);
+    if (hint && SvIOK(hint)) return SvIVX(hint);
+    return 0;
 }
 
 STATIC OP *(*old_ck_aassign)(pTHX_ OP *) = NULL;
+STATIC OP *(*old_ck_open)(pTHX_ OP *) = NULL;
 
 STATIC OP *
 my_ck_aassign(pTHX_ OP *o) {
@@ -103,20 +106,35 @@ my_ck_aassign(pTHX_ OP *o) {
             }
         }
         
-        /* warn if stricter is enabled. no warnings 'stricter',
+        /* warn/die if stricter is enabled. no warnings 'stricter',
            apply the FATAL or NONFATAL bit */
         if (SvCUR(msg)) {
+#if 1
+            /* this version disallows no warnings 'stricter';
+               but works around the scope one-off quirks */
+            croak_sv(msg); /* all FATAL */
+#else
             PUSHMARK(SP);
             XPUSHs(newSVpvs("stricter"));
             XPUSHs(msg);
             PUTBACK;
             call_pv("warnings::warnif", G_DISCARD);
             SPAGAIN;
+#endif
         }
     }
     return o;
 }
 
+STATIC OP *
+my_ck_open(pTHX_ OP *o) {
+    dSP;
+    o = CALL_FPTR(old_ck_open)(aTHX_ o);
+
+    if (my_hint()) { /* check if we are lexically active */
+        SV *msg = newSVpvs("");
+    }
+}
   
 MODULE = stricter		PACKAGE = stricter
 
@@ -151,5 +169,7 @@ BOOT:
   MY_CXT.owner       = aTHX;
 #endif
 
+  /*warn("Warning: use stricter is not yet working\n");*/
   wrap_op_checker(OP_AASSIGN, my_ck_aassign, &old_ck_aassign);
+  wrap_op_checker(OP_OPEN, my_ck_open, &old_ck_open);
 }
