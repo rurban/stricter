@@ -46,7 +46,7 @@ wrap_op_checker(pTHX_ OPCODE type, my_ck_t new_ck, my_ck_t *old_ck_p)
 
 STATIC int
 my_hint() {
-    SV *hint = cop_hints_fetch_pvs(PL_curcop, "stricter", 0);
+    SV * const hint = cop_hints_fetch_pvs(PL_curcop, "stricter", 0);
     if (hint && SvIOK(hint)) return SvIVX(hint);
     return 0;
 }
